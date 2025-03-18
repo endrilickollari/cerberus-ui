@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://cerberus-api-0773eaec6d0f.herokuapp.com',
+  baseURL: 'http://localhost:8080',
 });
 
 api.interceptors.request.use((config) => {
