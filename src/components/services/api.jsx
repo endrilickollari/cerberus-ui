@@ -53,6 +53,7 @@ api.interceptors.response.use((response) => {
 
 const endpoints = {
     login: (credentials) => api.post('/login', credentials),
+    logout: () => {},
     getServerDetails: () => api.get('/server-details'),
     getCpuInfo: () => api.get('/server-details/cpu-info'),
     getDiskUsage: () => api.get('/server-details/disk-usage'),
