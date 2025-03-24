@@ -47,7 +47,7 @@ export const AuthProvider = ({children}) => {
 
         try {
             // Use axios directly
-            const baseURL = 'http://localhost:8080';
+            const baseURL = import.meta.env.VITE_API_BASE_URL;
             console.log('Making login request with credentials:', {
                 ...credentials,
                 password: credentials.password ? '********' : ''

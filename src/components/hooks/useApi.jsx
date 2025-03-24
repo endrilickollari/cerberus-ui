@@ -1,7 +1,7 @@
 // src/components/hooks/useApi.jsx
-import { useState, useCallback, useContext } from 'react';
+import {useState, useCallback, useContext} from 'react';
 import axios from 'axios';
-import { AuthContext } from '../context/AuthContext';
+import {AuthContext} from '../context/AuthContext';
 
 /**
  * Custom hook for making API requests with built-in state management
@@ -10,7 +10,7 @@ const useApi = () => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
-    const { logout } = useContext(AuthContext);
+    const {logout} = useContext(AuthContext);
 
     // Function to execute the API call using axios directly
     const request = useCallback(async (config) => {
@@ -19,7 +19,7 @@ const useApi = () => {
 
         try {
             // Use axios directly instead of api.request
-            const baseURL = 'http://localhost:8080';
+            const baseURL = import.meta.env.VITE_API_BASE_URL;
             const token = localStorage.getItem('token');
 
             // Set up request headers
