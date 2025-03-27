@@ -77,6 +77,9 @@ const endpoints = {
     getCpuInfo: () => api.get('/server-details/cpu-info'),
     getDiskUsage: () => api.get('/server-details/disk-usage'),
     getRunningProcesses: () => api.get('/server-details/running_processes'),
+    listFileSystem: () => api.get('filesystem/list'),
+    listFileSystemDetails: () => api.get('filesystem/details'),
+    searchFileSystem: () => api.get('filesystem/search')
 }
 
 export default endpoints

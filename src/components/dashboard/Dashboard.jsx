@@ -9,6 +9,7 @@ import ServerDetails from "./ServerDetails/ServerDetails";
 import CpuUsage from "./CpuUsage/CpuUsage";
 import DiskUsage from "./DiskUsage/DiskUsage";
 import RunningProcesses from "./RunningProcesses/RunningProcesses";
+import FileExplorer from "./FileSystem/FileSystem";
 const Dashboard = () => {
     const navigate = useNavigate();
     const {logout} = useContext(AuthContext);
@@ -48,6 +49,7 @@ const Dashboard = () => {
                     <Route path="/cpu" element={<CpuUsage/>}/>
                     <Route path="/disk" element={<DiskUsage/>}/>
                     <Route path="/processes" element={<RunningProcesses/>}/>
+                    <Route path="/files" element={<FileExplorer/>}/>
 
                     {/* Redirect to server details by default */}
                     <Route path="*" element={<ServerDetails/>}/>
