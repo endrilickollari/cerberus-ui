@@ -22,6 +22,7 @@ import ProcessIcon from '@mui/icons-material/ListAlt';
 import MemoryIcon from '@mui/icons-material/Memory';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ApiIcon from '@mui/icons-material/Api';
+import {FileIcon, FilesIcon} from "lucide-react";
 
 // Sidebar width
 const drawerWidth = 240;
@@ -62,6 +63,12 @@ const NavigationBar = () => {
             path: '/dashboard/processes',
             icon: <ProcessIcon color="inherit"/>,
             description: 'Active system processes'
+        },
+        {
+            text: 'File Explorer',
+            path: '/dashboard/files',
+            icon: <FilesIcon color="inherit"/>,
+            description: 'Server Files'
         }
     ];
 
