@@ -62,7 +62,7 @@ const AppRoutes = () => {
             </Routes>
 
             {/* Debug component - only visible in development */}
-            <AuthDebugger/>
+            {/*<AuthDebugger/>*/}
         </>
     );
 };

@@ -79,7 +79,8 @@ const endpoints = {
     getRunningProcesses: () => api.get('/server-details/running_processes'),
     listFileSystem: () => api.get('filesystem/list'),
     listFileSystemDetails: () => api.get('filesystem/details'),
-    searchFileSystem: () => api.get('filesystem/search')
+    searchFileSystem: () => api.get('filesystem/search'),
+    getDockerImages: () => api.get('docker/images'),
 }
 
 export default endpoints

@@ -22,7 +22,9 @@ import ProcessIcon from '@mui/icons-material/ListAlt';
 import MemoryIcon from '@mui/icons-material/Memory';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ApiIcon from '@mui/icons-material/Api';
-import {FileIcon, FilesIcon} from "lucide-react";
+import {ContainerIcon, FileIcon, FilesIcon} from "lucide-react";
+import DescriptionIcon from "@mui/icons-material/Description";
+import {DirectionsBoat, LocalShipping} from "@mui/icons-material";
 
 // Sidebar width
 const drawerWidth = 240;
@@ -67,8 +69,14 @@ const NavigationBar = () => {
         {
             text: 'File Explorer',
             path: '/dashboard/files',
-            icon: <FilesIcon color="inherit"/>,
+            icon: <DescriptionIcon color="inherit"/>,
             description: 'Server Files'
+        },
+        {
+            text: 'Docker',
+            path: '/dashboard/docker',
+            icon: <DirectionsBoat color="inherit"/>,
+            description: 'Docker Explorer'
         }
     ];
 
