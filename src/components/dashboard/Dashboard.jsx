@@ -10,6 +10,8 @@ import CpuUsage from "./CpuUsage/CpuUsage";
 import DiskUsage from "./DiskUsage/DiskUsage";
 import RunningProcesses from "./RunningProcesses/RunningProcesses";
 import FileExplorer from "./FileSystem/FileSystem";
+import Docker from "./Docker/Docker";
+
 const Dashboard = () => {
     const navigate = useNavigate();
     const {logout} = useContext(AuthContext);
@@ -50,6 +52,7 @@ const Dashboard = () => {
                     <Route path="/disk" element={<DiskUsage/>}/>
                     <Route path="/processes" element={<RunningProcesses/>}/>
                     <Route path="/files" element={<FileExplorer/>}/>
+                    <Route path="/docker" element={<Docker/>}/>
 
                     {/* Redirect to server details by default */}
                     <Route path="*" element={<ServerDetails/>}/>

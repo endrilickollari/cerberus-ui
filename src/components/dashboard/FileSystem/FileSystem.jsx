@@ -45,9 +45,9 @@ import apiEndpoints from '../../services/api';
 import {LinkIcon} from "lucide-react";
 
 const FileExplorer = () => {
-    // State for file system navigation
-    const [currentPath, setCurrentPath] = useState('/home');
-    const [history, setHistory] = useState(['/home']);
+    // State for file system navigation - Changed default path to '/'
+    const [currentPath, setCurrentPath] = useState('/');
+    const [history, setHistory] = useState(['/']);
     const [historyIndex, setHistoryIndex] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [includeHidden, setIncludeHidden] = useState(false);
@@ -113,6 +113,12 @@ const FileExplorer = () => {
         } catch (error) {
             console.error('Failed to search files:', error);
         }
+    };
+
+    // Clear search results and return to normal view
+    const clearSearch = () => {
+        searchApi.setData(null);
+        setSearchTerm('');
     };
 
     // Process file list data
@@ -186,18 +192,26 @@ const FileExplorer = () => {
         }
     };
 
-    // Go to home directory
+    // Go to home directory - Changed to root
     const goHome = () => {
-        navigateTo('/home');
+        navigateTo('/');
     };
 
     // Handle file/folder click
     const handleItemClick = (entry) => {
         setSelectedItem(entry);
         fetchFileDetails(entry.path);
+    };
+
+    // Handle file/folder double-click
+    const handleItemDoubleClick = (entry) => {
         if (entry.type === 'directory') {
+            // Navigate to directory's path, which will fetch and show its contents
             navigateTo(entry.path);
         } else {
+            // Open file details modal for files
+            setSelectedItem(entry);
+            fetchFileDetails(entry.path);
             setOpenModal(true);
         }
     };
@@ -318,136 +332,29 @@ const FileExplorer = () => {
         fetchFileList(currentPath);
     };
 
-    // Show loading state
-    if (listApi.loading && !fileEntries.length) {
-        return (
-            <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4}}>
-                <CircularProgress size={40}/>
-                <Typography sx={{ml: 2}}>Loading file system data...</Typography>
-            </Box>
-        );
-    }
-
-    // Show error state
-    if (listApi.error) {
-        return (
-            <Alert severity="error" sx={{mb: 2}}>
-                Error loading file system: {listApi.error.message || 'Unknown error'}
-                <Button
-                    variant="outlined"
-                    size="small"
-                    sx={{ml: 2}}
-                    onClick={handleRefresh}
-                >
-                    Retry
-                </Button>
-            </Alert>
-        );
-    }
-
     // Determine which entries to display (search results or file list)
     const displayEntries = searchApi.data ? searchResults : fileEntries;
 
-    return (
-        <Box sx={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-            {/* Navigation and Search Bar */}
-            <Card elevation={3} sx={{mb: 2}}>
-                <CardContent sx={{pb: 1}}>
-                    {/* Navigation Controls */}
-                    <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
-                        <Tooltip title="Back">
-            <span>
-              <IconButton
-                  color="primary"
-                  onClick={goBack}
-                  disabled={historyIndex <= 0}
-              >
-                <ArrowBackIcon/>
-              </IconButton>
-            </span>
-                        </Tooltip>
+    // Render main content component
+    const renderFileSystem = () => {
+        // If error, show error message
+        if (listApi.error) {
+            return (
+                <Alert severity="error" sx={{mb: 2, mt: 2}}>
+                    Error loading file system: {listApi.error.message || 'Unknown error'}
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        sx={{ml: 2}}
+                        onClick={handleRefresh}
+                    >
+                        Retry
+                    </Button>
+                </Alert>
+            );
+        }
 
-                        <Tooltip title="Forward">
-            <span>
-              <IconButton
-                  color="primary"
-                  onClick={goForward}
-                  disabled={historyIndex >= history.length - 1}
-              >
-                <ArrowForwardIcon/>
-              </IconButton>
-            </span>
-                        </Tooltip>
-
-                        <Tooltip title="Home">
-                            <IconButton color="primary" onClick={goHome}>
-                                <HomeIcon/>
-                            </IconButton>
-                        </Tooltip>
-
-                        <Tooltip title="Refresh">
-                            <IconButton color="primary" onClick={handleRefresh} disabled={listApi.loading}>
-                                {listApi.loading ? <CircularProgress size={24}/> : <RefreshIcon/>}
-                            </IconButton>
-                        </Tooltip>
-
-                        <Divider orientation="vertical" flexItem sx={{mx: 1}}/>
-
-                        <Box sx={{flexGrow: 1}}>
-                            {renderBreadcrumbs()}
-                        </Box>
-                    </Box>
-
-                    {/* Search Controls */}
-                    <Box sx={{display: 'flex', alignItems: 'center'}}>
-                        <TextField
-                            fullWidth
-                            variant="outlined"
-                            size="small"
-                            placeholder="Search files..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon color="action"/>
-                                    </InputAdornment>
-                                ),
-                                endAdornment: searchApi.loading && (
-                                    <InputAdornment position="end">
-                                        <CircularProgress size={20}/>
-                                    </InputAdornment>
-                                )
-                            }}
-                            sx={{mr: 2}}
-                        />
-
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleSearch}
-                            disabled={!searchTerm.trim() || searchApi.loading}
-                        >
-                            Search
-                        </Button>
-
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={includeHidden}
-                                    onChange={(e) => setIncludeHidden(e.target.checked)}
-                                    name="includeHidden"
-                                />
-                            }
-                            label="Show hidden files"
-                            sx={{ml: 2}}
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
-
-            {/* File System Content */}
+        return (
             <Grid2 container spacing={2}>
                 {/* File List */}
                 <Grid2 item xs={12} md={8}>
@@ -455,24 +362,15 @@ const FileExplorer = () => {
                         <CardHeader
                             title={searchApi.data ? "Search Results" : "File System"}
                             subheader={searchApi.data ? `Found ${searchResults.length} results for "${searchTerm}"` : currentPath}
-                            action={
-                                <Box sx={{display: 'flex'}}>
-                                    {searchApi.data && (
-                                        <Button
-                                            variant="text"
-                                            color="primary"
-                                            onClick={() => searchApi.setData(null)}
-                                            sx={{mr: 1}}
-                                        >
-                                            Clear Search
-                                        </Button>
-                                    )}
-                                </Box>
-                            }
                         />
                         <Divider/>
                         <CardContent sx={{height: '60vh', overflow: 'auto'}}>
-                            {displayEntries.length > 0 ? (
+                            {listApi.loading ? (
+                                <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%'}}>
+                                    <CircularProgress size={30} />
+                                    <Typography sx={{ml: 2}}>Loading...</Typography>
+                                </Box>
+                            ) : displayEntries.length > 0 ? (
                                 viewMode === 'grid' ? (
                                     <Grid2 container spacing={2}>
                                         {displayEntries.map((entry) => (
@@ -491,6 +389,7 @@ const FileExplorer = () => {
                                                         height: '100%'
                                                     }}
                                                     onClick={() => handleItemClick(entry)}
+                                                    onDoubleClick={() => handleItemDoubleClick(entry)}
                                                 >
                                                     <Box sx={{display: 'flex', alignItems: 'center', mb: 1}}>
                                                         {getFileIcon(entry)}
@@ -529,6 +428,7 @@ const FileExplorer = () => {
                                                 divider
                                                 selected={selectedItem?.path === entry.path}
                                                 onClick={() => handleItemClick(entry)}
+                                                onDoubleClick={() => handleItemDoubleClick(entry)}
                                                 sx={{opacity: entry.is_hidden ? 0.6 : 1}}
                                             >
                                                 <ListItemIcon>
@@ -588,14 +488,14 @@ const FileExplorer = () => {
                             title="File Details"
                             action={
                                 <Tooltip title="View Details">
-                <span>
-                  <IconButton
-                      disabled={!selectedItem}
-                      onClick={() => selectedItem && setOpenModal(true)}
-                  >
-                    <VisibilityIcon/>
-                  </IconButton>
-                </span>
+                                    <span>
+                                      <IconButton
+                                          disabled={!selectedItem}
+                                          onClick={() => selectedItem && setOpenModal(true)}
+                                      >
+                                        <VisibilityIcon/>
+                                      </IconButton>
+                                    </span>
                                 </Tooltip>
                             }
                         />
@@ -729,6 +629,121 @@ const FileExplorer = () => {
                     </Card>
                 </Grid2>
             </Grid2>
+        );
+    };
+
+    return (
+        <Box sx={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+            {/* Navigation and Search Bar - Always visible */}
+            <Card elevation={3} sx={{mb: 2}}>
+                <CardContent sx={{pb: 1}}>
+                    {/* Navigation Controls */}
+                    <Box sx={{display: 'flex', alignItems: 'center', mb: 2}}>
+                        <Tooltip title="Back">
+                            <span>
+                              <IconButton
+                                  color="primary"
+                                  onClick={goBack}
+                                  disabled={historyIndex <= 0}
+                              >
+                                <ArrowBackIcon/>
+                              </IconButton>
+                            </span>
+                        </Tooltip>
+
+                        <Tooltip title="Forward">
+                            <span>
+                              <IconButton
+                                  color="primary"
+                                  onClick={goForward}
+                                  disabled={historyIndex >= history.length - 1}
+                              >
+                                <ArrowForwardIcon/>
+                              </IconButton>
+                            </span>
+                        </Tooltip>
+
+                        <Tooltip title="Home">
+                            <IconButton color="primary" onClick={goHome}>
+                                <HomeIcon/>
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Refresh">
+                            <IconButton color="primary" onClick={handleRefresh} disabled={listApi.loading}>
+                                {listApi.loading ? <CircularProgress size={24}/> : <RefreshIcon/>}
+                            </IconButton>
+                        </Tooltip>
+
+                        <Divider orientation="vertical" flexItem sx={{mx: 1}}/>
+
+                        <Box sx={{flexGrow: 1}}>
+                            {renderBreadcrumbs()}
+                        </Box>
+                    </Box>
+
+                    {/* Search Controls - Always visible regardless of search state */}
+                    <Box sx={{display: 'flex', alignItems: 'center'}}>
+                        <TextField
+                            fullWidth
+                            variant="outlined"
+                            size="small"
+                            placeholder="Search files..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon color="action"/>
+                                    </InputAdornment>
+                                ),
+                                endAdornment: searchApi.loading && (
+                                    <InputAdornment position="end">
+                                        <CircularProgress size={20}/>
+                                    </InputAdornment>
+                                )
+                            }}
+                            sx={{mr: 2}}
+                        />
+
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleSearch}
+                            disabled={!searchTerm.trim() || searchApi.loading}
+                        >
+                            Search
+                        </Button>
+
+                        {searchApi.data && (
+                            <Button
+                                variant="outlined"
+                                color="secondary"
+                                onClick={clearSearch}
+                                sx={{ml: 2}}
+                            >
+                                Clear
+                            </Button>
+                        )}
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={includeHidden}
+                                    onChange={(e) => setIncludeHidden(e.target.checked)}
+                                    name="includeHidden"
+                                />
+                            }
+                            label="Show hidden files"
+                            sx={{ml: 2}}
+                        />
+                    </Box>
+                </CardContent>
+            </Card>
+
+            {/* File System Content */}
+            {renderFileSystem()}
 
             {/* File Details Modal */}
             <Modal

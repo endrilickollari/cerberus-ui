@@ -1,4 +1,3 @@
-// src/components/dashboard/ServerDetails/ServerDetails.jsx
 import React, {useState, useEffect, useMemo} from 'react';
 import {
     Typography,
