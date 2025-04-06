@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+// Handle dialog close (after animation)
+const handleDialogClosed = () => {
+    if (!deleteConfirmOpen) {
+        setImageToDelete(null);
+    }
+};
+import React, {useState, useEffect, useMemo} from 'react';
 import {
     Typography,
     Box,
@@ -35,8 +41,10 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteIcon from '@mui/icons-material/Delete';
 import InfoIcon from '@mui/icons-material/Info';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import useApi from '../../../hooks/useApi';
 import DockerImageDetailsModal from './DockerImageDetailsModal';
+import DockerRunImageModal from './DockerRunImageModal';
 
 const DockerImages = () => {
     // API hooks
@@ -57,6 +65,10 @@ const DockerImages = () => {
     // State for delete confirmation dialog
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [imageToDelete, setImageToDelete] = useState(null);
+
+    // State for run image modal
+    const [runImageModalOpen, setRunImageModalOpen] = useState(false);
+    const [imageToRun, setImageToRun] = useState(null);
 
     // Fetch data when component mounts
     useEffect(() => {
@@ -107,10 +119,20 @@ const DockerImages = () => {
         // Don't clear imageToDelete yet, wait until the dialog is fully closed
     };
 
-    // Handle dialog close (after animation)
-    const handleDialogClosed = () => {
-        if (!deleteConfirmOpen) {
-            setImageToDelete(null);
+    // Handle image run
+    const handleRunImage = () => {
+        setImageToRun(selectedImage);
+        setRunImageModalOpen(true);
+        handleMenuClose();
+    };
+
+    // Handle close run image modal
+    const handleCloseRunImageModal = (success) => {
+        setRunImageModalOpen(false);
+        if (success) {
+            // If container was successfully created, we might want to redirect to containers tab
+            // or refresh the containers list
+            console.log('Container created successfully');
         }
     };
 
@@ -220,7 +242,7 @@ const DockerImages = () => {
     // Handle errors
     if (imagesApi.error) {
         return (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{mb: 2}}>
                 Error fetching Docker images. Please check your connection and try again.
             </Alert>
         );
@@ -232,7 +254,7 @@ const DockerImages = () => {
                 <CardHeader
                     title="Docker Images"
                     action={
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box sx={{display: 'flex', alignItems: 'center'}}>
                             <TextField
                                 size="small"
                                 placeholder="Search images..."
@@ -241,15 +263,15 @@ const DockerImages = () => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <SearchIcon fontSize="small" />
+                                            <SearchIcon fontSize="small"/>
                                         </InputAdornment>
                                     ),
                                 }}
-                                sx={{ mr: 1 }}
+                                sx={{mr: 1}}
                             />
                             <Tooltip title="Refresh">
                                 <IconButton onClick={handleRefreshImages}>
-                                    <RefreshIcon />
+                                    <RefreshIcon/>
                                 </IconButton>
                             </Tooltip>
                         </Box>
@@ -257,12 +279,12 @@ const DockerImages = () => {
                 />
                 <CardContent>
                     {imagesApi.loading ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                            <CircularProgress />
+                        <Box sx={{display: 'flex', justifyContent: 'center', p: 4}}>
+                            <CircularProgress/>
                         </Box>
                     ) : (
                         <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} size="small">
+                            <Table sx={{minWidth: 650}} size="small">
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Repository</TableCell>
@@ -281,7 +303,7 @@ const DockerImages = () => {
                                                 key={index}
                                                 hover
                                                 onClick={() => handleRowClick(image)}
-                                                sx={{ cursor: 'pointer' }}
+                                                sx={{cursor: 'pointer'}}
                                             >
                                                 <TableCell component="th" scope="row">
                                                     {image.repository || 'N/A'}
@@ -313,7 +335,7 @@ const DockerImages = () => {
                                                             handleMenuClick(event, image);
                                                         }}
                                                     >
-                                                        <MoreVertIcon fontSize="small" />
+                                                        <MoreVertIcon fontSize="small"/>
                                                     </IconButton>
                                                 </TableCell>
                                             </TableRow>
@@ -341,11 +363,15 @@ const DockerImages = () => {
                         onClose={handleMenuClose}
                     >
                         <MenuItem onClick={handleViewImageDetails}>
-                            <InfoIcon fontSize="small" sx={{ mr: 1 }} />
+                            <InfoIcon fontSize="small" sx={{mr: 1}}/>
                             View Details
                         </MenuItem>
-                        <MenuItem onClick={handleDeleteImageClick} sx={{ color: 'error.main' }}>
-                            <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
+                        <MenuItem onClick={handleRunImage}>
+                            <PlayArrowIcon fontSize="small" sx={{mr: 1}}/>
+                            Run Container
+                        </MenuItem>
+                        <MenuItem onClick={handleDeleteImageClick} sx={{color: 'error.main'}}>
+                            <DeleteIcon fontSize="small" sx={{mr: 1}}/>
                             Delete Image
                         </MenuItem>
                     </Menu>
@@ -391,7 +417,7 @@ const DockerImages = () => {
                     </DialogContentText>
 
                     {deleteImageApi.error && (
-                        <Alert severity="error" sx={{ mt: 2 }}>
+                        <Alert severity="error" sx={{mt: 2}}>
                             Failed to delete image. {deleteImageApi.error?.message || 'Please try again.'}
                         </Alert>
                     )}
@@ -413,10 +439,19 @@ const DockerImages = () => {
             <Snackbar
                 open={deleteImageApi.data && !deleteImageApi.loading && !deleteImageApi.error}
                 autoHideDuration={6000}
-                onClose={() => {/* Clear the deleteImageApi state if needed */}}
+                onClose={() => {/* Clear the deleteImageApi state if needed */
+                }}
                 message="Image deleted successfully"
-                position="top-right"
             />
+
+            {/* Run Image Modal */}
+            {imageToRun && (
+                <DockerRunImageModal
+                    open={runImageModalOpen}
+                    onClose={handleCloseRunImageModal}
+                    imageData={imageToRun}
+                />
+            )}
         </>
     );
 };
