@@ -31,3 +31,19 @@ yarn-error.log*
 /package-lock.json
 
 .env
+/src/dev/index.js
+/src/dev/palette.jsx
+/src/dev/previews.jsx
+/src/dev/README.md
+/src/dev/useInitial.js
+/dist/assets/favicon-D0Sbus7l.png
+/dist/assets/index-C65b-9Bv.js
+/dist/assets/logo192-Cw5HMvxU.png
+/dist/assets/manifest-CpJEptrx.json
+/dist/favicon.png
+/dist/index.html
+/dist/logo192.png
+/dist/logo512.png
+/dist/manifest.json
+/dist/robots.txt
+/.idea/jsLibraryMappings.xml
